@@ -59,7 +59,7 @@
             margin-left: 2px;
         }
 
-        input {
+        input, select {
             width: 100%;
             padding: 12px 16px;
             border: 1px solid #ddd;
@@ -69,7 +69,7 @@
             font-family: inherit;
         }
 
-        input:focus {
+        input:focus, select:focus {
             outline: none;
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
@@ -172,10 +172,6 @@
             margin-bottom: 30px;
         }
 
-        .signatarios-categoria:last-child {
-            margin-bottom: 0;
-        }
-
         .signatarios-header {
             display: flex;
             justify-content: space-between;
@@ -206,20 +202,6 @@
             overflow-y: auto;
         }
 
-        .signatarios-list::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .signatarios-list::-webkit-scrollbar-track {
-            background: #e9ecef;
-            border-radius: 4px;
-        }
-
-        .signatarios-list::-webkit-scrollbar-thumb {
-            background: #667eea;
-            border-radius: 4px;
-        }
-
         .signatario-item {
             padding: 10px 0;
             color: #333;
@@ -231,13 +213,6 @@
             border-bottom: none;
         }
 
-        .signatarios-empty {
-            color: #999;
-            font-size: 14px;
-            text-align: center;
-            padding: 20px;
-        }
-
         .footer {
             margin-top: 30px;
             padding-top: 20px;
@@ -247,6 +222,10 @@
             font-size: 12px;
         }
 
+        iframe {
+            display: none;
+        }
+
         @media (max-width: 600px) {
             .container {
                 padding: 24px;
@@ -254,16 +233,6 @@
 
             h1 {
                 font-size: 20px;
-            }
-
-            .button-group {
-                flex-direction: column;
-            }
-
-            .signatarios-header {
-                flex-direction: column;
-                gap: 10px;
-                align-items: flex-start;
             }
         }
     </style>
@@ -277,7 +246,10 @@
             ✓ Formulário enviado com sucesso! Obrigado pela sua participação.
         </div>
 
-        <form id="votoNominalForm">
+        <form id="votoNominalForm" action="https://formspree.io/f/xanyewvq" method="POST">
+            <input type="hidden" name="_next" value="">
+            <input type="hidden" name="_subject" value="Nova assinatura - Voto Nominal ECP">
+            
             <div class="form-group">
                 <label for="nome">Nome completo <span class="required">*</span></label>
                 <input type="text" id="nome" name="nome" required>
@@ -304,16 +276,11 @@
 
             <div class="form-group">
                 <label for="tipo">Você é <span class="required">*</span></label>
-                <div style="display: flex; gap: 20px; margin-top: 12px;">
-                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: normal;">
-                        <input type="radio" id="tipoConselheiro" name="tipo" value="Conselheiro(a)" required style="width: auto; cursor: pointer;">
-                        Conselheiro(a)
-                    </label>
-                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: normal;">
-                        <input type="radio" id="tipoCandidato" name="tipo" value="Candidato(a)" required style="width: auto; cursor: pointer;">
-                        Candidato(a)
-                    </label>
-                </div>
+                <select id="tipo" name="tipo" required>
+                    <option value="">Selecione...</option>
+                    <option value="Conselheiro(a)">Conselheiro(a)</option>
+                    <option value="Candidato(a)">Candidato(a)</option>
+                </select>
                 <div class="error-message" id="tipoError">Por favor, selecione uma opção.</div>
             </div>
 
@@ -327,20 +294,20 @@
             <div class="signatarios-categoria">
                 <div class="signatarios-header">
                     <h2 class="signatarios-title">Conselheiros(as)</h2>
-                    <span class="signatarios-count" id="conselheirosCount">0</span>
+                    <span class="signatarios-count">1</span>
                 </div>
-                <div class="signatarios-list" id="conselheirosList">
-                    <div class="signatarios-empty">Carregando...</div>
+                <div class="signatarios-list">
+                    <div class="signatario-item">✓ Olavo Meyer</div>
                 </div>
             </div>
 
             <div class="signatarios-categoria">
                 <div class="signatarios-header">
                     <h2 class="signatarios-title">Candidatos(as)</h2>
-                    <span class="signatarios-count" id="candidatosCount">0</span>
+                    <span class="signatarios-count">0</span>
                 </div>
-                <div class="signatarios-list" id="candidatosList">
-                    <div class="signatarios-empty">Carregando...</div>
+                <div class="signatarios-list">
+                    <div class="signatario-item" style="color: #999; text-align: center;">Nenhum candidato ainda.</div>
                 </div>
             </div>
         </div>
@@ -351,54 +318,6 @@
     </div>
 
     <script>
-        const API_URL = window.location.origin + '/api/respostas';
-
-        // Carregar lista ao iniciar
-        document.addEventListener('DOMContentLoaded', function() {
-            atualizarListaSignatarios();
-            // Atualizar a cada 10 segundos
-            setInterval(atualizarListaSignatarios, 10000);
-        });
-
-        function atualizarListaSignatarios() {
-            fetch(API_URL)
-                .then(res => res.json())
-                .then(respostas => {
-                    // Separar por tipo
-                    const conselheiros = respostas.filter(r => r.tipo === 'Conselheiro(a)').map(r => r.nome).sort();
-                    const candidatos = respostas.filter(r => r.tipo === 'Candidato(a)').map(r => r.nome).sort();
-
-                    // Atualizar conselheiros
-                    const conselheirosCount = document.getElementById('conselheirosCount');
-                    const conselheirosList = document.getElementById('conselheirosList');
-                    conselheirosCount.textContent = conselheiros.length;
-                    
-                    if (conselheiros.length === 0) {
-                        conselheirosList.innerHTML = '<div class="signatarios-empty">Nenhum conselheiro ainda.</div>';
-                    } else {
-                        conselheirosList.innerHTML = conselheiros.map(nome => 
-                            `<div class="signatario-item">✓ ${nome}</div>`
-                        ).join('');
-                    }
-
-                    // Atualizar candidatos
-                    const candidatosCount = document.getElementById('candidatosCount');
-                    const candidatosList = document.getElementById('candidatosList');
-                    candidatosCount.textContent = candidatos.length;
-                    
-                    if (candidatos.length === 0) {
-                        candidatosList.innerHTML = '<div class="signatarios-empty">Nenhum candidato ainda.</div>';
-                    } else {
-                        candidatosList.innerHTML = candidatos.map(nome => 
-                            `<div class="signatario-item">✓ ${nome}</div>`
-                        ).join('');
-                    }
-                })
-                .catch(err => {
-                    console.error('Erro ao carregar lista:', err);
-                });
-        }
-
         // Máscara de CPF
         const cpfInput = document.getElementById('cpf');
         cpfInput.addEventListener('input', function(e) {
@@ -441,7 +360,7 @@
             return true;
         }
 
-        // Validação do formulário
+        // Intercept form submission
         document.getElementById('votoNominalForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -485,43 +404,34 @@
             }
 
             // Validar tipo
-            const tipo = document.querySelector('input[name="tipo"]:checked');
-            if (!tipo) {
+            const tipo = document.getElementById('tipo');
+            if (!tipo.value) {
                 document.getElementById('tipoError').classList.add('show');
+                tipo.classList.add('error');
                 isValid = false;
             }
             
             if (isValid) {
-                // Coletar dados
-                const formData = {
-                    nome: nome.value,
-                    email: email.value,
-                    cpf: cpf.value,
-                    matricula: matricula.value,
-                    tipo: tipo.value
-                };
+                // Submit via AJAX
+                const formData = new FormData(this);
+                formData.set('_next', window.location.href);
                 
-                // Enviar para o servidor
-                fetch(API_URL, {
+                fetch(this.action, {
                     method: 'POST',
+                    body: formData,
                     headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
+                        'Accept': 'application/json'
+                    }
                 })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        // Exibir mensagem de sucesso
+                .then(response => {
+                    if (response.ok) {
+                        // Show success message
                         document.getElementById('successMessage').classList.add('show');
                         
-                        // Limpar formulário
-                        document.getElementById('votoNominalForm').reset();
+                        // Clear form
+                        this.reset();
                         
-                        // Atualizar lista
-                        atualizarListaSignatarios();
-                        
-                        // Esconder mensagem após 5s
+                        // Hide message after 5s
                         setTimeout(() => {
                             document.getElementById('successMessage').classList.remove('show');
                         }, 5000);
@@ -529,12 +439,12 @@
                         alert('Erro ao enviar formulário. Tente novamente.');
                     }
                 })
-                .catch(err => {
-                    console.error('Erro:', err);
+                .catch(error => {
+                    console.error('Error:', error);
                     alert('Erro ao enviar formulário. Tente novamente.');
                 });
             } else {
-                // Scroll para o primeiro erro
+                // Scroll to first error
                 const firstError = document.querySelector('.error');
                 if (firstError) {
                     firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -545,7 +455,7 @@
         function limparFormulario() {
             document.getElementById('votoNominalForm').reset();
             document.querySelectorAll('.error-message').forEach(el => el.classList.remove('show'));
-            document.querySelectorAll('input').forEach(el => el.classList.remove('error'));
+            document.querySelectorAll('input, select').forEach(el => el.classList.remove('error'));
         }
     </script>
 </body>
