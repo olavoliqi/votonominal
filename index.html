@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conselheiros a Favor do Voto Nominal - ECP</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+            margin: 20px auto;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .required {
+            color: #d93025;
+            margin-left: 2px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        input.error {
+            border-color: #d93025;
+        }
+
+        .error-message {
+            color: #d93025;
+            font-size: 12px;
+            margin-top: 6px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .btn-submit {
+            background: #667eea;
+            color: white;
+            flex: 1;
+        }
+
+        .btn-submit:hover {
+            background: #5568d3;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-submit:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-clear {
+            background: transparent;
+            color: #667eea;
+            border: 1px solid #667eea;
+        }
+
+        .btn-clear:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .success-message {
+            display: none;
+            background: #34a853;
+            color: white;
+            padding: 16px;
+            border-radius: 6px;
+            text-align: center;
+            margin-bottom: 20px;
+            animation: slideDown 0.3s ease;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .signatarios-section {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #eee;
+        }
+
+        .signatarios-categoria {
+            margin-bottom: 30px;
+        }
+
+        .signatarios-categoria:last-child {
+            margin-bottom: 0;
+        }
+
+        .signatarios-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .signatarios-title {
+            color: #333;
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .signatarios-count {
+            background: #667eea;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .signatarios-list {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .signatarios-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .signatarios-list::-webkit-scrollbar-track {
+            background: #e9ecef;
+            border-radius: 4px;
+        }
+
+        .signatarios-list::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 4px;
+        }
+
+        .signatario-item {
+            padding: 10px 0;
+            color: #333;
+            font-size: 14px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .signatario-item:last-child {
+            border-bottom: none;
+        }
+
+        .signatarios-empty {
+            color: #999;
+            font-size: 14px;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            text-align: center;
+            color: #999;
+            font-size: 12px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 24px;
+            }
+
+            h1 {
+                font-size: 20px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .signatarios-header {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Conselheiros e Candidatos a Favor do Voto Nominal</h1>
+        <p class="subtitle">Preencha o formulário abaixo para manifestar, como Conselheiro(a) ou Candidato(a), seu apoio ao voto nominal nas reuniões do conselho deliberativo do Esporte Clube Pinheiros.</p>
+
+        <div class="success-message" id="successMessage">
+            ✓ Formulário enviado com sucesso! Obrigado pela sua participação.
+        </div>
+
+        <form id="votoNominalForm">
+            <div class="form-group">
+                <label for="nome">Nome completo <span class="required">*</span></label>
+                <input type="text" id="nome" name="nome" required>
+                <div class="error-message" id="nomeError">Por favor, preencha seu nome completo.</div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">E-mail <span class="required">*</span></label>
+                <input type="email" id="email" name="email" required>
+                <div class="error-message" id="emailError">Por favor, insira um e-mail válido.</div>
+            </div>
+
+            <div class="form-group">
+                <label for="cpf">CPF <span class="required">*</span></label>
+                <input type="text" id="cpf" name="cpf" placeholder="000.000.000-00" required maxlength="14">
+                <div class="error-message" id="cpfError">Por favor, insira um CPF válido.</div>
+            </div>
+
+            <div class="form-group">
+                <label for="matricula">Matrícula ECP <span class="required">*</span></label>
+                <input type="text" id="matricula" name="matricula" required>
+                <div class="error-message" id="matriculaError">Por favor, preencha sua matrícula.</div>
+            </div>
+
+            <div class="form-group">
+                <label for="tipo">Você é <span class="required">*</span></label>
+                <div style="display: flex; gap: 20px; margin-top: 12px;">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: normal;">
+                        <input type="radio" id="tipoConselheiro" name="tipo" value="Conselheiro(a)" required style="width: auto; cursor: pointer;">
+                        Conselheiro(a)
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: normal;">
+                        <input type="radio" id="tipoCandidato" name="tipo" value="Candidato(a)" required style="width: auto; cursor: pointer;">
+                        Candidato(a)
+                    </label>
+                </div>
+                <div class="error-message" id="tipoError">Por favor, selecione uma opção.</div>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="btn-submit">Enviar</button>
+                <button type="button" class="btn-clear" onclick="limparFormulario()">Limpar</button>
+            </div>
+        </form>
+
+        <div class="signatarios-section">
+            <div class="signatarios-categoria">
+                <div class="signatarios-header">
+                    <h2 class="signatarios-title">Conselheiros(as)</h2>
+                    <span class="signatarios-count" id="conselheirosCount">0</span>
+                </div>
+                <div class="signatarios-list" id="conselheirosList">
+                    <div class="signatarios-empty">Carregando...</div>
+                </div>
+            </div>
+
+            <div class="signatarios-categoria">
+                <div class="signatarios-header">
+                    <h2 class="signatarios-title">Candidatos(as)</h2>
+                    <span class="signatarios-count" id="candidatosCount">0</span>
+                </div>
+                <div class="signatarios-list" id="candidatosList">
+                    <div class="signatarios-empty">Carregando...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            Esporte Clube Pinheiros • 2026
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin + '/api/respostas';
+
+        // Carregar lista ao iniciar
+        document.addEventListener('DOMContentLoaded', function() {
+            atualizarListaSignatarios();
+            // Atualizar a cada 10 segundos
+            setInterval(atualizarListaSignatarios, 10000);
+        });
+
+        function atualizarListaSignatarios() {
+            fetch(API_URL)
+                .then(res => res.json())
+                .then(respostas => {
+                    // Separar por tipo
+                    const conselheiros = respostas.filter(r => r.tipo === 'Conselheiro(a)').map(r => r.nome).sort();
+                    const candidatos = respostas.filter(r => r.tipo === 'Candidato(a)').map(r => r.nome).sort();
+
+                    // Atualizar conselheiros
+                    const conselheirosCount = document.getElementById('conselheirosCount');
+                    const conselheirosList = document.getElementById('conselheirosList');
+                    conselheirosCount.textContent = conselheiros.length;
+                    
+                    if (conselheiros.length === 0) {
+                        conselheirosList.innerHTML = '<div class="signatarios-empty">Nenhum conselheiro ainda.</div>';
+                    } else {
+                        conselheirosList.innerHTML = conselheiros.map(nome => 
+                            `<div class="signatario-item">✓ ${nome}</div>`
+                        ).join('');
+                    }
+
+                    // Atualizar candidatos
+                    const candidatosCount = document.getElementById('candidatosCount');
+                    const candidatosList = document.getElementById('candidatosList');
+                    candidatosCount.textContent = candidatos.length;
+                    
+                    if (candidatos.length === 0) {
+                        candidatosList.innerHTML = '<div class="signatarios-empty">Nenhum candidato ainda.</div>';
+                    } else {
+                        candidatosList.innerHTML = candidatos.map(nome => 
+                            `<div class="signatario-item">✓ ${nome}</div>`
+                        ).join('');
+                    }
+                })
+                .catch(err => {
+                    console.error('Erro ao carregar lista:', err);
+                });
+        }
+
+        // Máscara de CPF
+        const cpfInput = document.getElementById('cpf');
+        cpfInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length <= 11) {
+                value = value.replace(/(\d{3})(\d)/, '$1.$2');
+                value = value.replace(/(\d{3})(\d)/, '$1.$2');
+                value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+                e.target.value = value;
+            }
+        });
+
+        // Validação de CPF
+        function validarCPF(cpf) {
+            cpf = cpf.replace(/\D/g, '');
+            
+            if (cpf.length !== 11) return false;
+            if (/^(\d)\1+$/.test(cpf)) return false;
+            
+            let soma = 0;
+            let resto;
+            
+            for (let i = 1; i <= 9; i++) {
+                soma += parseInt(cpf.substring(i-1, i)) * (11 - i);
+            }
+            
+            resto = (soma * 10) % 11;
+            if (resto === 10 || resto === 11) resto = 0;
+            if (resto !== parseInt(cpf.substring(9, 10))) return false;
+            
+            soma = 0;
+            for (let i = 1; i <= 10; i++) {
+                soma += parseInt(cpf.substring(i-1, i)) * (12 - i);
+            }
+            
+            resto = (soma * 10) % 11;
+            if (resto === 10 || resto === 11) resto = 0;
+            if (resto !== parseInt(cpf.substring(10, 11))) return false;
+            
+            return true;
+        }
+
+        // Validação do formulário
+        document.getElementById('votoNominalForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Reset erros
+            document.querySelectorAll('.error-message').forEach(el => el.classList.remove('show'));
+            document.querySelectorAll('input').forEach(el => el.classList.remove('error'));
+            
+            let isValid = true;
+            
+            // Validar nome
+            const nome = document.getElementById('nome');
+            if (nome.value.trim().length < 3) {
+                document.getElementById('nomeError').classList.add('show');
+                nome.classList.add('error');
+                isValid = false;
+            }
+            
+            // Validar email
+            const email = document.getElementById('email');
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email.value)) {
+                document.getElementById('emailError').classList.add('show');
+                email.classList.add('error');
+                isValid = false;
+            }
+            
+            // Validar CPF
+            const cpf = document.getElementById('cpf');
+            if (!validarCPF(cpf.value)) {
+                document.getElementById('cpfError').classList.add('show');
+                cpf.classList.add('error');
+                isValid = false;
+            }
+            
+            // Validar matrícula
+            const matricula = document.getElementById('matricula');
+            if (matricula.value.trim().length === 0) {
+                document.getElementById('matriculaError').classList.add('show');
+                matricula.classList.add('error');
+                isValid = false;
+            }
+
+            // Validar tipo
+            const tipo = document.querySelector('input[name="tipo"]:checked');
+            if (!tipo) {
+                document.getElementById('tipoError').classList.add('show');
+                isValid = false;
+            }
+            
+            if (isValid) {
+                // Coletar dados
+                const formData = {
+                    nome: nome.value,
+                    email: email.value,
+                    cpf: cpf.value,
+                    matricula: matricula.value,
+                    tipo: tipo.value
+                };
+                
+                // Enviar para o servidor
+                fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        // Exibir mensagem de sucesso
+                        document.getElementById('successMessage').classList.add('show');
+                        
+                        // Limpar formulário
+                        document.getElementById('votoNominalForm').reset();
+                        
+                        // Atualizar lista
+                        atualizarListaSignatarios();
+                        
+                        // Esconder mensagem após 5s
+                        setTimeout(() => {
+                            document.getElementById('successMessage').classList.remove('show');
+                        }, 5000);
+                    } else {
+                        alert('Erro ao enviar formulário. Tente novamente.');
+                    }
+                })
+                .catch(err => {
+                    console.error('Erro:', err);
+                    alert('Erro ao enviar formulário. Tente novamente.');
+                });
+            } else {
+                // Scroll para o primeiro erro
+                const firstError = document.querySelector('.error');
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        });
+
+        function limparFormulario() {
+            document.getElementById('votoNominalForm').reset();
+            document.querySelectorAll('.error-message').forEach(el => el.classList.remove('show'));
+            document.querySelectorAll('input').forEach(el => el.classList.remove('error'));
+        }
+    </script>
+</body>
+</html>
