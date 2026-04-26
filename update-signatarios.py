@@ -2,6 +2,7 @@
 
 import urllib.request
 import re
+from collections import OrderedDict
 
 SHEET_ID = '1k7YbTEE9DR0nT5ChS27_C6phLrFCpzAIrrgnX14JtzQ'
 GID = '324537718'
@@ -19,10 +20,11 @@ if csv_data.strip().startswith('<!DOCTYPE') or csv_data.strip().startswith('<HTM
 
 print('Processando signatários...')
 
+# Usar OrderedDict para manter ordem e remover duplicatas automaticamente
 signatarios = {
-    'Conselheiro(a)': [],
-    'Associado(a) candidato(a) ao conselho': [],
-    'Associado(a) apoiador(a)': []
+    'Conselheiro(a)': OrderedDict(),
+    'Associado(a) candidato(a) ao conselho': OrderedDict(),
+    'Associado(a) apoiador(a)': OrderedDict()
 }
 
 lines = csv_data.strip().split('\n')
@@ -32,7 +34,13 @@ for line in lines[1:]:  # Skip header
         nome = parts[1].strip()
         tipo = parts[4].strip()
         if tipo in signatarios:
-            signatarios[tipo].append(nome)
+            # Remove espaços extras e normaliza nome
+            nome_normalizado = ' '.join(nome.split())
+            # Sobrescreve se já existe (mantém o último/mais recente)
+            signatarios[tipo][nome_normalizado] = True
+
+# Converter OrderedDict de volta para listas
+signatarios = {k: list(v.keys()) for k, v in signatarios.items()}
 
 print(f"Conselheiros: {len(signatarios['Conselheiro(a)'])}")
 print(f"Candidatos: {len(signatarios['Associado(a) candidato(a) ao conselho'])}")
